@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-test
+  namespace: nginx-deployment
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:latest
+        ports:
+        - name: http
+          containerPort: 80
+        resources:
+          requests:
+            cpu: "50m"
+            memory: "64Mi"
+          limits:
+            cpu: "100m"
+            memory: "128Mi"
+
+# spec:
+#   containers:
+#   - name: nginx
+#     image: nginx:latest
+#     ports:
+#     - name: http
+#       containerPort: 80
+#     volumeMounts:
+#     - name: config
+#       mountPath: /etc/nginx/conf.d
+#     resources:
+#       requests:
+#         cpu: "50m"
+#         memory: "64Mi"
+#       limits:
+#         cpu: "100m"
+#         memory: "128Mi"
+#   volumes:
+#   - name: config
+#     configMap:
+#       name: nginx-config
+#       items:
+#       - key: health.conf
+#         path: health.conf
+# ---
+# apiVersion: v1
+# kind: ConfigMap
+# metadata:
+#   name: nginx-config
+#   namespace: nginx-deployment
+# data:
+#   health.conf: |
+#     server {
+#       listen 80;
+#       location /health {
+#         return 200 "healthy\n";
+#       }
+#       location / {
+#         root /usr/share/nginx/html;
+#         index index.html index.htm;
+#       }
+#     }

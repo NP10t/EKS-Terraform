@@ -1,0 +1,10 @@
+get current user
+aws sts get-caller-identity
+
+connect to eks, lệnh này thêm thông tin eks vào cấu hình kubectl hiện tại trên máy
+tại .kube/config
+aws eks update-kubeconfig --region ap-southeast-1 --name staging-demo
+
+
+aws iam list-access-keys --user-name manager
+aws iam delete-access-key --access-key-id <AccessKeyId> --user-name manager

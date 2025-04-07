@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: nginx-sts
+  namespace: test-ebs
+spec:
+  serviceName: nginx-svc
+  replicas: 1
+  selector:
+    matchLabels:
+      app: nginx-sts-label
+  template:
+    metadata:
+      labels:
+        app: nginx-sts-label
+    spec:
+      containers:
+      - name: nginx-container
+        image: nginx:latest
+        ports:
+        - name: http
+          containerPort: 80
+        volumeMounts:
+        - name: data
+          mountPath: /usr/share/nginx/html
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      storageClassName: gp2
+      accessModes: [ReadWriteOnce]
+      resources:
+        requests:
+          storage: 5Gi
+

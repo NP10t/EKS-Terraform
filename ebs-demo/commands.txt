@@ -1,0 +1,64 @@
+kubectl exec -it nginx-sts-0 -n test-ebs -- bash
+
+echo "<h1>Test EBS Persistence</h1>" > /usr/share/nginx/html/index.html
+
+exit
+
+kubectl delete pod nginx-sts-0 -n test-ebs
+
+kubectl get pods -n test-ebs
+
+xem PVC
+kubectl get pvc -n test-ebs
+
+lay volumeID
+kubectl describe pv pvc-5d5f0113-6a00-4fd3-b908-a00e880939c7
+
+tam dung ghi
+kubectl scale statefulset nginx-sts -n test-ebs --replicas=0
+
+Tao snapshot cua volume do
+aws ec2 create-snapshot --volume-id vol-06eb7644a5f1a02ce --description "Backup of EBS volume for nginx-sts-0" --region ap-southeast-1
+
+cho phep ghi lai
+kubectl scale statefulset nginx-sts -n test-ebs --replicas=1
+
+Kiểm tra trạng thái snapshot
+ws ec2 describe-snapshots --snapshot-ids snap-0103bda013ba5c7ed --region ap-southeast-1
+
+aws ec2 create-volume --snapshot-id snap-0103bda013ba5c7ed --availability-zone ap-southeast-1a --volume-type gp2 --region ap-southeast-1
+
+demo xoa volume cu dung volume moi
+kubectl scale statefulset nginx-sts -n test-ebs --replicas=0
+
+lay vol-id hien tai
+kubectl get pvc -n test-ebs
+
+xoa vol-id hien tai
+kubectl delete pv pvc-5d5f0113-6a00-4fd3-b908-a00e880939c7
+
+xoa sts cu
+kubectl delete statefulset nginx-sts -n test-ebs --cascade=orphan
+
+xoa luon pod cu
+ kubectl delete pod nginx-sts-0 -n test-ebs
+
+xoa pvc cu
+kubectl delete pvc data-nginx-sts-0 -n test-ebs
+
+tao pv tu snapshot
+kubectl apply -f ./ebs-demo/create-pv.yaml
+
+dung tao pvc den pv vua tao
+kubectl apply -f ./ebs-demo/create-pvc.yaml
+
+kiem tra
+kubectl get pvc -n test-ebs
+
+chay sts moi
+kubectl apply -f ./ebs-demo/new-sts.yaml
+
+kiem tra xem bind chua (pv chu khong phai pvc)
+kubectl get pv -n test-ebs
+
+kubectl describe pod nginx-sts-0 -n test-ebs
